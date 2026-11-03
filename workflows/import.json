@@ -1,326 +1,333 @@
 {
- "id": "HokS4Checked0003",
- "name": "3 Import delivery with check",
- "active": false,
- "nodes": [
-  {
-   "parameters": {},
-   "id": "s1",
-   "name": "Start",
-   "type": "n8n-nodes-base.manualTrigger",
-   "typeVersion": 1,
-   "position": [
-    0,
-    0
-   ]
-  },
-  {
-   "parameters": {
-    "fileSelector": "/home/node/.n8n-files/orders-day3.csv",
-    "options": {}
-   },
-   "id": "s2",
-   "name": "Read delivery file",
-   "type": "n8n-nodes-base.readWriteFile",
-   "typeVersion": 1,
-   "position": [
-    220,
-    0
-   ]
-  },
-  {
-   "parameters": {
-    "options": {}
-   },
-   "id": "s3",
-   "name": "Extract from CSV",
-   "type": "n8n-nodes-base.extractFromFile",
-   "typeVersion": 1,
-   "position": [
-    440,
-    0
-   ]
-  },
-  {
-   "parameters": {
-    "conditions": {
-     "options": {
-      "caseSensitive": true,
-      "leftValue": "",
-      "typeValidation": "loose",
-      "version": 2
-     },
-     "conditions": [
-      {
-       "id": "c1",
-       "leftValue": "={{ $json.store }}",
-       "rightValue": "^(Innsbruck|Kufstein|Wörgl)$",
-       "operator": {
-        "type": "string",
-        "operation": "regex"
-       }
+  "name": "3 Import delivery with check",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "9f65a89d-bdb4-451c-9c3e-e63d6f15ed5b",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/node/.n8n-files/orders-day3.csv",
+        "options": {}
       },
-      {
-       "id": "c2",
-       "leftValue": "={{ $json.quantity }}",
-       "rightValue": 1,
-       "operator": {
-        "type": "number",
-        "operation": "gte"
-       }
+      "id": "f46c6ac6-3cb2-4728-a85c-ecd3651ceb21",
+      "name": "Read delivery file",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        224,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
       },
-      {
-       "id": "c3",
-       "leftValue": "={{ $json.amount }}",
-       "rightValue": 0,
-       "operator": {
-        "type": "number",
-        "operation": "gt"
-       }
+      "id": "3498728f-9075-40fe-998e-d717d4e20e8a",
+      "name": "Extract from CSV",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        448,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.store }}",
+              "rightValue": "^(Innsbruck|Kufstein|Wörgl)$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.quantity }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "c3",
+              "leftValue": "={{ $json.amount }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "c4",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "^(completed|cancelled)$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "c5",
+              "leftValue": "={{ $json.order_date }}",
+              "rightValue": "^\\d{4}-\\d{2}-\\d{2}$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "c6",
+              "leftValue": "={{ $json.quantity }}",
+              "rightValue": "^[0-9]+$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
       },
-      {
-       "id": "c4",
-       "leftValue": "={{ $json.status }}",
-       "rightValue": "^(completed|cancelled)$",
-       "operator": {
-        "type": "string",
-        "operation": "regex"
-       }
+      "id": "5c5da157-ed56-4a2f-af89-1af34cc31c64",
+      "name": "Check rules",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "orders",
+          "cachedResultName": "orders"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "order_id"
+          ],
+          "schema": [
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": true,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "order_date",
+              "displayName": "order_date",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "store",
+              "displayName": "store",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product",
+              "displayName": "product",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quantity",
+              "displayName": "quantity",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "queryBatching": "transaction"
+        }
       },
-      {
-       "id": "c5",
-       "leftValue": "={{ $json.order_date }}",
-       "rightValue": "^\\d{4}-\\d{2}-\\d{2}$",
-       "operator": {
-        "type": "string",
-        "operation": "regex"
-       }
-      },
-      {
-       "id": "c6",
-       "leftValue": "={{ $json.quantity }}",
-       "rightValue": "^[0-9]+$",
-       "operator": {
-        "type": "string",
-        "operation": "regex"
-       }
+      "id": "243113be-8417-406a-a44f-ef6ae05159d5",
+      "name": "Insert or update orders",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        912,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1HppZaaq5x9XIEt2",
+          "name": "Postgres shop"
+        }
       }
-     ],
-     "combinator": "and"
     },
-    "options": {}
-   },
-   "id": "s5",
-   "name": "Check rules",
-   "type": "n8n-nodes-base.if",
-   "typeVersion": 2.2,
-   "position": [
-    660,
-    0
-   ]
-  },
-  {
-   "parameters": {
-    "operation": "upsert",
-    "schema": {
-     "__rl": true,
-     "mode": "list",
-     "value": "public"
+    {
+      "parameters": {
+        "options": {
+          "fileName": "errors.csv"
+        }
+      },
+      "id": "a4183571-e45f-43fb-8140-5fa25a6da0f6",
+      "name": "Rejected rows to CSV",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        224
+      ]
     },
-    "table": {
-     "__rl": true,
-     "mode": "list",
-     "value": "orders",
-     "cachedResultName": "orders"
-    },
-    "columns": {
-     "mappingMode": "autoMapInputData",
-     "value": {},
-     "matchingColumns": [
-      "order_id"
-     ],
-     "schema": [
-      {
-       "id": "order_id",
-       "displayName": "order_id",
-       "required": true,
-       "defaultMatch": true,
-       "display": true,
-       "type": "number",
-       "canBeUsedToMatch": true
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/home/node/.n8n-files/errors.csv",
+        "options": {}
       },
-      {
-       "id": "order_date",
-       "displayName": "order_date",
-       "required": true,
-       "defaultMatch": false,
-       "display": true,
-       "type": "dateTime",
-       "canBeUsedToMatch": true
-      },
-      {
-       "id": "store",
-       "displayName": "store",
-       "required": true,
-       "defaultMatch": false,
-       "display": true,
-       "type": "string",
-       "canBeUsedToMatch": true
-      },
-      {
-       "id": "product",
-       "displayName": "product",
-       "required": true,
-       "defaultMatch": false,
-       "display": true,
-       "type": "string",
-       "canBeUsedToMatch": true
-      },
-      {
-       "id": "quantity",
-       "displayName": "quantity",
-       "required": true,
-       "defaultMatch": false,
-       "display": true,
-       "type": "number",
-       "canBeUsedToMatch": true
-      },
-      {
-       "id": "amount",
-       "displayName": "amount",
-       "required": true,
-       "defaultMatch": false,
-       "display": true,
-       "type": "number",
-       "canBeUsedToMatch": true
-      },
-      {
-       "id": "status",
-       "displayName": "status",
-       "required": true,
-       "defaultMatch": false,
-       "display": true,
-       "type": "string",
-       "canBeUsedToMatch": true
-      }
-     ]
-    },
-    "options": {
-     "queryBatching": "transaction"
+      "id": "b7981a50-bae0-4c5e-bf26-1b541ddd81ed",
+      "name": "Write errors.csv",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        224
+      ]
     }
-   },
-   "id": "s4",
-   "name": "Insert or update orders",
-   "type": "n8n-nodes-base.postgres",
-   "typeVersion": 2.7,
-   "position": [
-    900,
-    -100
-   ],
-   "credentials": {
-    "postgres": {
-     "id": "hokPgShop0000001",
-     "name": "Postgres shop"
+  ],
+  "pinData": {},
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Read delivery file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read delivery file": {
+      "main": [
+        [
+          {
+            "node": "Extract from CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from CSV": {
+      "main": [
+        [
+          {
+            "node": "Check rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check rules": {
+      "main": [
+        [
+          {
+            "node": "Insert or update orders",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rejected rows to CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rejected rows to CSV": {
+      "main": [
+        [
+          {
+            "node": "Write errors.csv",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
-   }
   },
-  {
-   "parameters": {
-    "options": {
-     "fileName": "errors.csv"
-    }
-   },
-   "id": "s6",
-   "name": "Rejected rows to CSV",
-   "type": "n8n-nodes-base.convertToFile",
-   "typeVersion": 1.1,
-   "position": [
-    900,
-    120
-   ]
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   },
-  {
-   "parameters": {
-    "operation": "write",
-    "fileName": "/home/node/.n8n-files/errors.csv",
-    "options": {}
-   },
-   "id": "s7",
-   "name": "Write errors.csv",
-   "type": "n8n-nodes-base.readWriteFile",
-   "typeVersion": 1,
-   "position": [
-    1120,
-    120
-   ]
-  }
- ],
- "connections": {
-  "Start": {
-   "main": [
-    [
-     {
-      "node": "Read delivery file",
-      "type": "main",
-      "index": 0
-     }
-    ]
-   ]
+  "versionId": "5887e474-ec13-46ac-919b-2da84c708c72",
+  "meta": {
+    "instanceId": "62da345e346ef262bc598a71f9c7b811618801129155941cb80cb69810a11a74"
   },
-  "Read delivery file": {
-   "main": [
-    [
-     {
-      "node": "Extract from CSV",
-      "type": "main",
-      "index": 0
-     }
-    ]
-   ]
-  },
-  "Extract from CSV": {
-   "main": [
-    [
-     {
-      "node": "Check rules",
-      "type": "main",
-      "index": 0
-     }
-    ]
-   ]
-  },
-  "Check rules": {
-   "main": [
-    [
-     {
-      "node": "Insert or update orders",
-      "type": "main",
-      "index": 0
-     }
-    ],
-    [
-     {
-      "node": "Rejected rows to CSV",
-      "type": "main",
-      "index": 0
-     }
-    ]
-   ]
-  },
-  "Rejected rows to CSV": {
-   "main": [
-    [
-     {
-      "node": "Write errors.csv",
-      "type": "main",
-      "index": 0
-     }
-    ]
-   ]
-  }
- },
- "settings": {
-  "executionOrder": "v1"
- },
- "pinData": {}
+  "nodeGroups": [],
+  "id": "jrocZVq10N8LX06c",
+  "tags": []
 }
